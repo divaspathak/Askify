@@ -6,6 +6,6 @@ import org.springframework.stereotype.Component;
 import com.example.Askify.Model.Question;
 
 @Component
-public interface QuestionRespostory extends ReactiveMongoRepository<Question, String> {
+public interface QuestionRepostory extends ReactiveMongoRepository<Question, String> {
     
 }

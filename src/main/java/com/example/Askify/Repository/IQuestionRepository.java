@@ -4,7 +4,7 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
 import com.example.Askify.Model.Question;
 
-public interface IQuestionRespository extends ReactiveMongoRepository<Question, String> {
+public interface IQuestionRepository extends ReactiveMongoRepository<Question, String> {
     //Flux<Question> findByAuthorId(String authorId);
     
     //Mono<Long> countByAuthorId(String authorId);
