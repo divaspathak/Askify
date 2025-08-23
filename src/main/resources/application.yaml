@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: Askify
+  data:
+    mongodb:
+      uri: mongodb+srv://divaspathak:Divas5563**@cluster0.2n3lmsk.mongodb.net/Askify
+      auto-index-creation: true
+    
