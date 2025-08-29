@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.Askify.Dto.QuestionListResponseDto;
 import com.example.Askify.Dto.QuestionRequestDto;
 import com.example.Askify.Dto.QuestionResponseDto;
-import com.example.Askify.Services.IQuestionService;  
+import com.example.Askify.Services.IQuestionService;
 import com.example.Askify.Services.QuestionService;
 import reactor.core.publisher.Mono;
 
@@ -21,26 +21,36 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/api/questions")
 public class QuestionController {
-    private final IQuestionService questionService; 
+    private final IQuestionService questionService;
 
     public QuestionController(QuestionService questionService) {
         this.questionService = questionService;
     }
-    
+
     // @GetMapping("/author/{authorId}")
-    // public Flux<QuestionRequestDto> getQuestionsByAuthor(@PathVariable String authorId) {
-    //     return questionService.getQuestionsByAuthor(authorId);
+    // public Flux<QuestionRequestDto> getQuestionsByAuthor(@PathVariable String
+    // authorId) {
+    // return questionService.getQuestionsByAuthor(authorId);
     // }
 
     @PostMapping("/create")
-    public Mono<QuestionResponseDto> createQuestion(@RequestBody QuestionRequestDto questionResquestDto){
-        return questionService.createQuestion(questionResquestDto); 
+    public Mono<QuestionResponseDto> createQuestion(@RequestBody QuestionRequestDto questionResquestDto) {
+        return questionService.createQuestion(questionResquestDto);
     }
 
     @GetMapping()
     public Mono<QuestionListResponseDto> getAllQuestions(
             @RequestParam(name = "limit", defaultValue = "10") int limit,
             @RequestParam(name = "offset", defaultValue = "0") int offset) {
-        return questionService.getAllQuestions(limit, offset); 
+        return questionService.getAllQuestions(limit, offset);
+    }
+
+    @GetMapping("/search")
+    public Mono<QuestionListResponseDto> searchQuestions(
+            @RequestParam(name = "searchTerm") String searchTerm,
+            @RequestParam(name = "limit", defaultValue = "10") int limit,
+            @RequestParam(name = "offset", defaultValue = "0") int offset) {
+
+            return questionService.searchQuestions(searchTerm, limit, offset); 
     }
 }

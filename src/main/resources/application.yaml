@@ -3,6 +3,9 @@ spring:
     name: Askify
   data:
     mongodb:
-      uri: mongodb+srv://divaspathak:Divas5563**@cluster0.2n3lmsk.mongodb.net/Askify
+      uri: "Your mongodb url"
       auto-index-creation: true
-    
+server:
+  error:
+    include-message: always
+    include-binding-errors: always   

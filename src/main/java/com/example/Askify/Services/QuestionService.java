@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -14,15 +13,17 @@ import com.example.Askify.Dto.QuestionRequestDto;
 import com.example.Askify.Dto.QuestionResponseDto;
 import com.example.Askify.Mapper.QuestionMapper;
 import com.example.Askify.Model.Question;
-import com.example.Askify.Repository.IQuestionRepository;
+import com.example.Askify.Repository.QuestionRepository;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
 public class QuestionService implements IQuestionService {
-    private final IQuestionRepository questionRepository;
+    private final QuestionRepository questionRepository;
     private final ReactiveMongoTemplate template;
 
-    public QuestionService(IQuestionRepository questionRespository, ReactiveMongoTemplate template) {
+    public QuestionService(QuestionRepository questionRespository, ReactiveMongoTemplate template) {
         this.questionRepository = questionRespository;
         this.template = template;
     }
@@ -56,5 +57,15 @@ public class QuestionService implements IQuestionService {
 
         return Mono.zip(itemsMono, totalMono)
                 .map(t -> new QuestionListResponseDto(t.getT1(), t.getT2().intValue()));
+    }
+
+    public Mono<QuestionListResponseDto> searchQuestions(String searchTerm, int limit, int offset) {
+        Mono<List<QuestionResponseDto>> question =  questionRepository.findByTitleOrContent(searchTerm, PageRequest.of(offset / limit, limit))
+        .map(QuestionMapper::toQuestionResponseDto)
+        .collectList(); 
+
+        Mono<Long> totalCount = questionRepository.countByTitleContainingOrContentContaining(searchTerm);
+        
+        return Mono.zip(question, totalCount).map(t -> new QuestionListResponseDto(t.getT1(), t.getT2().intValue())); 
     }
 }

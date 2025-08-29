@@ -14,5 +14,5 @@ import lombok.NoArgsConstructor;
 
 public class QuestionListResponseDto {
     private List<QuestionResponseDto> questions;
-    private int totalCount;
+    private long totalCount;
 }
