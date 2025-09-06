@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @Builder
 
 public class QuestionListResponseDto {
-    private List<QuestionResponseDto> questions;
+    private List<QuestionResponseDto> data;
     private long totalCount;
 }
