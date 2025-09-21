@@ -24,6 +24,8 @@ public class Like {
 
     private TargetType targetType; 
 
+    private String userId;
+
     private Boolean isLike; 
 
     @CreatedDate

@@ -26,7 +26,7 @@ public class Answer {
 
     @NotBlank(message = "Answer is required")
     @Size(min = 10, max = 1000, message = "Answer must be between 10 and 1000 characters")
-    private String answer; 
+    private String content; 
 
     private String authorId;
 

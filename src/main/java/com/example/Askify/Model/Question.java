@@ -34,6 +34,8 @@ public class Question {
 
     private String authorId;
 
+    private Integer views; 
+
     @CreatedDate
     private LocalDateTime createdAt;
 
