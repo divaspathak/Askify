@@ -2,6 +2,7 @@ package com.example.Askify.Controllers;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,22 +26,21 @@ public class QuestionController {
         this.questionService = questionService;
     }
 
-    // @GetMapping("/author/{authorId}")
-    // public Flux<QuestionRequestDto> getQuestionsByAuthor(@PathVariable String
-    // authorId) {
-    // return questionService.getQuestionsByAuthor(authorId);
-    // }
+    @GetMapping()
+    public Mono<QuestionListResponseDto> getAllQuestions(
+            @RequestParam(name = "limit", defaultValue = "10") int limit,
+            @RequestParam(name = "offset", defaultValue = "0") int offset) {
+        return questionService.getAllQuestions(limit, offset);
+    }
 
     @PostMapping("/create")
     public Mono<QuestionResponseDto> createQuestion(@RequestBody QuestionRequestDto questionResquestDto) {
         return questionService.createQuestion(questionResquestDto);
     }
 
-    @GetMapping()
-    public Mono<QuestionListResponseDto> getAllQuestions(
-            @RequestParam(name = "limit", defaultValue = "10") int limit,
-            @RequestParam(name = "offset", defaultValue = "0") int offset) {
-        return questionService.getAllQuestions(limit, offset);
+    @GetMapping("/{id}")
+    public Mono<QuestionResponseDto> getQuestionById(@PathVariable String id) {
+        return questionService.getQuestionById(id); 
     }
 
     @GetMapping("/search")
@@ -49,6 +49,6 @@ public class QuestionController {
             @RequestParam(name = "limit", defaultValue = "10") int limit,
             @RequestParam(name = "offset", defaultValue = "0") int offset) {
 
-            return questionService.searchQuestions(searchTerm, limit, offset); 
+        return questionService.searchQuestions(searchTerm, limit, offset); 
     }
 }

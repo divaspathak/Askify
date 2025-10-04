@@ -17,4 +17,6 @@ public interface QuestionRepository extends ReactiveMongoRepository<Question, St
 
     @Query(value = "{ '$or': [ {'title':  { $regex: ?0, $options: 'i' } }, { 'content': { $regex: ?0, $options: 'i' } } ] }", count = true)
     Mono<Long> countByTitleContainingOrContentContaining(String searchTerm);
+
+    Mono<Question> findById(String id); 
 }

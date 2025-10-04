@@ -10,6 +10,7 @@ public class QuestionMapper {
         .title(question.getTitle())
         .content(question.getContent())
         .createdAt(question.getCreatedAt())
+        .views(question.getViews())
         .build(); 
     }
 }

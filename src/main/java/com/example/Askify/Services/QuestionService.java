@@ -33,6 +33,7 @@ public class QuestionService implements IQuestionService {
                 .content(questionResponse.getContent())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
+                .views(0) 
                 .build();
 
         return questionRepository.save(question)
@@ -65,5 +66,15 @@ public class QuestionService implements IQuestionService {
         Mono<Long> totalCount = questionRepository.countByTitleContainingOrContentContaining(searchTerm);
         
         return Mono.zip(question, totalCount).map(t -> new QuestionListResponseDto(t.getT1(), t.getT2().intValue())); 
+    }
+
+    public Mono<QuestionResponseDto> getQuestionById(String id) {
+        return questionRepository.findById(id).map(response -> QuestionResponseDto.builder()
+        .id(response.getId())
+        .title(response.getTitle())
+        .content(response.getContent())
+        .createdAt(response.getCreatedAt())
+        .views(response.getViews())
+        .build()); 
     }
 }

@@ -14,4 +14,5 @@ public class QuestionResponseDto {
     private String title; 
     private String content; 
     private LocalDateTime createdAt; 
+    private Integer views;
 }
