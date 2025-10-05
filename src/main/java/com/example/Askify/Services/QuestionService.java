@@ -11,8 +11,10 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import com.example.Askify.Dto.QuestionListResponseDto;
 import com.example.Askify.Dto.QuestionRequestDto;
 import com.example.Askify.Dto.QuestionResponseDto;
+import com.example.Askify.Events.ViewCountEvent;
 import com.example.Askify.Mapper.QuestionMapper;
 import com.example.Askify.Model.Question;
+import com.example.Askify.Producers.KafkaEventProducer;
 import com.example.Askify.Repository.QuestionRepository;
 import reactor.core.publisher.Mono;
 
@@ -20,10 +22,12 @@ import reactor.core.publisher.Mono;
 public class QuestionService implements IQuestionService {
     private final QuestionRepository questionRepository;
     private final ReactiveMongoTemplate template;
+    private final KafkaEventProducer kafkaEventProducer; 
 
-    public QuestionService(QuestionRepository questionRespository, ReactiveMongoTemplate template) {
+    public QuestionService(QuestionRepository questionRespository, ReactiveMongoTemplate template, KafkaEventProducer kafkaEventProducer) {
         this.questionRepository = questionRespository;
         this.template = template;
+        this.kafkaEventProducer = kafkaEventProducer; 
     }
 
     @Override
@@ -69,12 +73,16 @@ public class QuestionService implements IQuestionService {
     }
 
     public Mono<QuestionResponseDto> getQuestionById(String id) {
-        return questionRepository.findById(id).map(response -> QuestionResponseDto.builder()
-        .id(response.getId())
-        .title(response.getTitle())
-        .content(response.getContent())
-        .createdAt(response.getCreatedAt())
-        .views(response.getViews())
-        .build()); 
+        return questionRepository.findById(id).map(QuestionMapper::toQuestionResponseDto) 
+        .doOnSuccess(response -> {
+            System.out.println("Question fetched successfully: " + response); 
+            ViewCountEvent viewCountEvent = new ViewCountEvent(
+                response.getId(),
+                "question",
+                LocalDateTime.now()
+            ); 
+            kafkaEventProducer.publishViewCountEvent(viewCountEvent);
+        })
+        .doOnError(error -> System.out.println("Error fetching question: " + error));
     }
 }

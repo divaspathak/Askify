@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class KafkeEventProducer {
+public class KafkaEventProducer {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void publishViewCountEvent(ViewCountEvent viewCountEvent) {
