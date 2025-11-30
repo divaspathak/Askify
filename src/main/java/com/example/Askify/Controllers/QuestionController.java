@@ -51,4 +51,13 @@ public class QuestionController {
 
         return questionService.searchQuestions(searchTerm, limit, offset); 
     }
+
+    @GetMapping("/elasticsearch")
+    public Mono<QuestionListResponseDto> searchQuestionsInElasticSearch(
+            @RequestParam(name = "searchTerm") String searchTerm,
+            @RequestParam(name = "limit", defaultValue = "10") int limit,
+            @RequestParam(name = "offset", defaultValue = "0") int offset) {
+
+        return questionService.searchQuestionsInElasticSearch(searchTerm, limit, offset); 
+    }
 }

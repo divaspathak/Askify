@@ -2,6 +2,7 @@ package com.example.Askify.Services;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -14,7 +15,9 @@ import com.example.Askify.Dto.QuestionResponseDto;
 import com.example.Askify.Events.ViewCountEvent;
 import com.example.Askify.Mapper.QuestionMapper;
 import com.example.Askify.Model.Question;
+import com.example.Askify.Model.QuestionElasticDocument;
 import com.example.Askify.Producers.KafkaEventProducer;
+import com.example.Askify.Repository.QuestionDocumentRepository;
 import com.example.Askify.Repository.QuestionRepository;
 import reactor.core.publisher.Mono;
 
@@ -23,11 +26,15 @@ public class QuestionService implements IQuestionService {
     private final QuestionRepository questionRepository;
     private final ReactiveMongoTemplate template;
     private final KafkaEventProducer kafkaEventProducer; 
+    private final QuestionIndexService questionIndexService;
+    private final QuestionDocumentRepository questionDocumentRepository; 
 
-    public QuestionService(QuestionRepository questionRespository, ReactiveMongoTemplate template, KafkaEventProducer kafkaEventProducer) {
+    public QuestionService(QuestionRepository questionRespository, ReactiveMongoTemplate template, KafkaEventProducer kafkaEventProducer, QuestionIndexService questionIndexService, QuestionDocumentRepository questionDocumentRepository) {
         this.questionRepository = questionRespository;
         this.template = template;
         this.kafkaEventProducer = kafkaEventProducer; 
+        this.questionIndexService = questionIndexService;
+        this.questionDocumentRepository = questionDocumentRepository; 
     }
 
     @Override
@@ -41,7 +48,10 @@ public class QuestionService implements IQuestionService {
                 .build();
 
         return questionRepository.save(question)
-                .map(QuestionMapper::toQuestionResponseDto)
+                .map(savedQuestion -> {
+                    questionIndexService.createQuestionIndex(savedQuestion);
+                    return QuestionMapper.toQuestionResponseDto(savedQuestion);
+                })
                 .doOnSuccess(response -> System.out.println("Question Created Successfully" + response))
                 .doOnError(error -> System.out.println("Errro creating Question" + error));
     }
@@ -84,5 +94,14 @@ public class QuestionService implements IQuestionService {
             kafkaEventProducer.publishViewCountEvent(viewCountEvent);
         })
         .doOnError(error -> System.out.println("Error fetching question: " + error));
+    }
+
+    public Mono<QuestionListResponseDto> searchQuestionsInElasticSearch(String searchTerm, int limit, int offset) {
+        PageRequest pageRequest = PageRequest.of(offset / limit, limit); 
+        List<QuestionElasticDocument> questions = questionDocumentRepository.findByTitleOrContentContaining(searchTerm, searchTerm, pageRequest); 
+        List<QuestionResponseDto> responseList = questions.stream()
+            .map(QuestionMapper::toQuestionResponseDto)
+            .collect(Collectors.toList());
+        return Mono.just(new QuestionListResponseDto(responseList, responseList.size()));
     }
 }

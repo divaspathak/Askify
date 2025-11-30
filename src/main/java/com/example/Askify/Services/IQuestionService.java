@@ -13,4 +13,6 @@ public interface IQuestionService {
     public Mono<QuestionListResponseDto> searchQuestions(String searchTerm, int limit, int offset);
 
     public Mono<QuestionResponseDto> getQuestionById(String id);
+
+    public Mono<QuestionListResponseDto> searchQuestionsInElasticSearch(String searchTerm, int limit, int offset);
 } 
